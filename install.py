@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import shutil
+import time
 import pythoncom
 import win32com.client
 
@@ -25,14 +26,9 @@ def create_shortcut(target, shortcut_path, description):
 def main():
     # Assume the install directory is the root directory where this script is located
     install_dir = os.path.dirname(os.path.abspath(__file__))
-    comfyui_dir = os.path.join(install_dir, "")
 
-    if not os.path.exists(comfyui_dir):
-        print(f"Error: The directory {comfyui_dir} does not exist. Please ensure the ComfyUI repository has been cloned to this location.")
-        return
-
-    # Step 1: CD into the ComfyUI directory
-    os.chdir(comfyui_dir)
+    # Step 1: CD into the install directory
+    os.chdir(install_dir)
 
     # Step 2: Create a virtual environment with Python 3.11
     print("Creating a virtual environment...")
@@ -40,7 +36,7 @@ def main():
 
     # Step 3: Install requirements.txt with pip
     print("Installing requirements from requirements.txt. This might take a while, please be patient.")
-    subprocess.run([os.path.join(comfyui_dir, '.venv', 'Scripts', 'pip'), "install", "-r", "requirements.txt"], shell=True, check=True)
+    subprocess.run([os.path.join(install_dir, '.venv', 'Scripts', 'pip'), "install", "-r", "requirements.txt"], shell=True, check=True)
 
     # Step 4: Prompt if the user wants to create the bat file and add a shortcut
     create_shortcut_prompt = input("Do you want to create a batch file and add a shortcut to the desktop? (yes/no): ").strip().lower()
@@ -50,19 +46,19 @@ def main():
         cmd_args = input("Enter any command line arguments you wish to use (e.g., --auto-launch --lowvram): ").strip()
 
         # Step 6: Create bat file and shortcut
-        bat_file_path = os.path.join(comfyui_dir, "run_comfyui.bat")
+        bat_file_path = os.path.join(install_dir, "run_comfyui.bat")
         with open(bat_file_path, 'w') as bat_file:
-            bat_file.write(f'{sys.executable} main.py {cmd_args}\n')
+            bat_file.write(f'{os.path.join(install_dir, ".venv", "Scripts", "python.exe")} main.py {cmd_args}\n')
 
         desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
         shortcut_path = os.path.join(desktop, "ComfyUI.lnk")
         create_shortcut(bat_file_path, shortcut_path, "Shortcut to run ComfyUI")
 
-        print("A bat file was created with your command line arguments in the ComfyUI root folder, and a shortcut to it was added to your desktop.")
+        print("A bat file was created with your command line arguments in the install directory, and a shortcut to it was added to your desktop.")
 
     # Step 7: Copy renamed DLL files from ZLUDA
-    zluda_dir = os.path.join(comfyui_dir, 'zluda', 'renamed_dlls')
-    torch_lib_dir = os.path.join(comfyui_dir, '.venv', 'Lib', 'site-packages', 'torch', 'lib')
+    zluda_dir = os.path.join(install_dir, 'zluda', 'renamed_dlls')
+    torch_lib_dir = os.path.join(install_dir, '.venv', 'Lib', 'site-packages', 'torch', 'lib')
 
     if not os.path.exists(zluda_dir):
         print(f"Error: ZLUDA directory {zluda_dir} does not exist.")
@@ -82,7 +78,7 @@ def main():
     # Final instructions
     print("\nComfyUI installation is complete.")
     if create_shortcut_prompt != 'yes':
-        print(f"To activate the virtual environment in the future, run:\n   {os.path.join(comfyui_dir, '.venv', 'Scripts', 'activate')}\n")
+        print(f"To activate the virtual environment in the future, run:\n   {os.path.join(install_dir, '.venv', 'Scripts', 'activate')}\n")
         print(f"To run ComfyUI with your specified command line arguments, use the desktop shortcut or run the bat file:\n   {bat_file_path}")
 
 if __name__ == "__main__":
