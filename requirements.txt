@@ -1,6 +1,8 @@
-torch
-torchsde
+--extra-index-url https://download.pytorch.org/whl/cu118
+
+torch==2.2.0
 torchvision
+torchsde
 einops
 transformers>=4.25.1
 safetensors>=0.3.0
