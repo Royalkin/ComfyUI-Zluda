@@ -25,7 +25,7 @@ def create_shortcut(target, shortcut_path, description):
 def main():
     # Assume the install directory is the root directory where this script is located
     install_dir = os.path.dirname(os.path.abspath(__file__))
-    comfyui_dir = os.path.join(install_dir, "comfyui")
+    comfyui_dir = os.path.join(install_dir, "")
 
     if not os.path.exists(comfyui_dir):
         print(f"Error: The directory {comfyui_dir} does not exist. Please ensure the ComfyUI repository has been cloned to this location.")
