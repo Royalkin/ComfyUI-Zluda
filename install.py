@@ -3,8 +3,6 @@ import subprocess
 import sys
 import shutil
 import time
-import pythoncom
-import win32com.client
 
 def run_with_progress(command, description):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -13,15 +11,6 @@ def run_with_progress(command, description):
         sys.stdout.flush()
         time.sleep(1)
     print("Done.")
-
-def create_shortcut(target, shortcut_path, description):
-    shell = win32com.client.Dispatch("WScript.Shell")
-    shortcut = shell.CreateShortCut(shortcut_path)
-    shortcut.TargetPath = target
-    shortcut.WorkingDirectory = os.path.dirname(target)
-    shortcut.IconLocation = target
-    shortcut.Description = description
-    shortcut.save()
 
 def main():
     # Assume the install directory is the root directory where this script is located
@@ -52,16 +41,12 @@ def main():
         print("Please refer to the command_line_arguments.md file in the comfyui directory for more information on available command line arguments.")
         cmd_args = input("Enter any command line arguments you wish to use (e.g., --auto-launch --lowvram): ").strip()
 
-        # Step 7: Create bat file and shortcut
+        # Step 7: Create bat file
         bat_file_path = os.path.join(install_dir, "run_comfyui.bat")
         with open(bat_file_path, 'w') as bat_file:
             bat_file.write(f'{activate_command}python main.py {cmd_args}"\n')
 
-        desktop = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-        shortcut_path = os.path.join(desktop, "ComfyUI.lnk")
-        create_shortcut(bat_file_path, shortcut_path, "Shortcut to run ComfyUI")
-
-        print("A bat file was created with your command line arguments in the install directory, and a shortcut to it was added to your desktop.")
+        print("A bat file was created with your command line arguments in the install directory.")
 
     # Step 8: Copy renamed DLL files from ZLUDA
     zluda_dir = os.path.join(install_dir, 'zluda', 'renamed_dlls')
@@ -86,7 +71,7 @@ def main():
     print("\nComfyUI installation is complete.")
     if create_shortcut_prompt != 'yes':
         print(f'To activate the virtual environment in the future, run:\n   {os.path.join(venv_dir, "Scripts", "activate.bat")}\n')
-        print(f'To run ComfyUI with your specified command line arguments, use the desktop shortcut or run the bat file:\n   {bat_file_path}')
+        print(f'To run ComfyUI with your specified command line arguments, use the batch file:\n   {bat_file_path}')
 
 if __name__ == "__main__":
     main()
