@@ -13,3 +13,4 @@ scipy
 tqdm
 psutil
 kornia>=0.7.1
+python==3.10.11
