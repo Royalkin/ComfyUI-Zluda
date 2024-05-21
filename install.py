@@ -46,9 +46,10 @@ def main():
     subprocess.run(activate_command + f'pip install -r requirements.txt"', shell=True, check=True)
 
     # Step 5: Prompt if the user wants to create the bat file and add a shortcut
-    create_shortcut_prompt = input("Do you want to create a shortcut to the desktop? (Y/n): ").strip().lower()
+    create_shortcut_prompt = input("Do you want to create a batch file and add a shortcut to the desktop? (yes/no): ").strip().lower()
     if create_shortcut_prompt == 'yes':
         # Step 6: Prompt for command line arguments
+        print("Please refer to the command_line_arguments.md file in the comfyui directory for more information on available command line arguments.")
         cmd_args = input("Enter any command line arguments you wish to use (e.g., --auto-launch --lowvram): ").strip()
 
         # Step 7: Create bat file and shortcut
@@ -60,7 +61,7 @@ def main():
         shortcut_path = os.path.join(desktop, "ComfyUI.lnk")
         create_shortcut(bat_file_path, shortcut_path, "Shortcut to run ComfyUI")
 
-        print("A shortcut was added to your desktop.")
+        print("A bat file was created with your command line arguments in the install directory, and a shortcut to it was added to your desktop.")
 
     # Step 8: Copy renamed DLL files from ZLUDA
     zluda_dir = os.path.join(install_dir, 'zluda', 'renamed_dlls')
@@ -83,9 +84,9 @@ def main():
 
     # Final instructions
     print("\nComfyUI installation is complete.")
-    if create_shortcut_prompt != 'Y':
-        print(f"To activate the virtual environment in the future, run:\n   {os.path.join(venv_dir, "Scripts", "activate.bat")}\n")
-        print(f"To run ComfyUI with your specified command line arguments, use the desktop shortcut or run the bat file:\n   {bat_file_path}")
+    if create_shortcut_prompt != 'yes':
+        print(f'To activate the virtual environment in the future, run:\n   {os.path.join(venv_dir, "Scripts", "activate.bat")}\n')
+        print(f'To run ComfyUI with your specified command line arguments, use the desktop shortcut or run the bat file:\n   {bat_file_path}')
 
 if __name__ == "__main__":
     main()
