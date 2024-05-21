@@ -26,23 +26,21 @@ def create_shortcut(target, shortcut_path, description):
 def main():
     # Assume the install directory is the root directory where this script is located
     install_dir = os.path.dirname(os.path.abspath(__file__))
+    conda_env_name = "comfyui_env"
 
     # Step 1: CD into the install directory
     os.chdir(install_dir)
 
-    # Step 2: Create a virtual environment with Python 3.11
-    print("Creating a virtual environment...")
-    run_with_progress([sys.executable, "-m", "venv", ".venv"], "Creating venv")
+    # Step 2: Create a Conda environment with Python 3.11
+    print("Creating a Conda environment...")
+    run_with_progress(f'conda create -y -n {conda_env_name} python=3.11', "Creating Conda environment")
 
-    # Step 3: Activate the virtual environment
-    activate_script = os.path.join(install_dir, '.venv', 'Scripts', 'activate')
-    if os.name == 'nt':
-        activate_script += '.bat'
-    activate_command = f'call {activate_script} && '
+    # Step 3: Activate the Conda environment
+    activate_command = f'conda activate {conda_env_name} && '
 
     # Step 4: Install requirements.txt with pip
     print("Installing requirements from requirements.txt. This might take a while, please be patient.")
-    subprocess.run(activate_command + f'{os.path.join(install_dir, ".venv", "Scripts", "pip")} install -r requirements.txt', shell=True, check=True)
+    subprocess.run(activate_command + f'pip install -r requirements.txt', shell=True, check=True)
 
     # Step 5: Prompt if the user wants to create the bat file and add a shortcut
     create_shortcut_prompt = input("Do you want to create a batch file and add a shortcut to the desktop? (yes/no): ").strip().lower()
@@ -64,7 +62,7 @@ def main():
 
     # Step 8: Copy renamed DLL files from ZLUDA
     zluda_dir = os.path.join(install_dir, 'zluda', 'renamed_dlls')
-    torch_lib_dir = os.path.join(install_dir, '.venv', 'Lib', 'site-packages', 'torch', 'lib')
+    torch_lib_dir = os.path.join(install_dir, 'envs', conda_env_name, 'Lib', 'site-packages', 'torch', 'lib')
 
     if not os.path.exists(zluda_dir):
         print(f"Error: ZLUDA directory {zluda_dir} does not exist.")
@@ -84,7 +82,7 @@ def main():
     # Final instructions
     print("\nComfyUI installation is complete.")
     if create_shortcut_prompt != 'yes':
-        print(f"To activate the virtual environment in the future, run:\n   {os.path.join(install_dir, '.venv', 'Scripts', 'activate')}\n")
+        print(f"To activate the Conda environment in the future, run:\n   conda activate {conda_env_name}\n")
         print(f"To run ComfyUI with your specified command line arguments, use the desktop shortcut or run the bat file:\n   {bat_file_path}")
 
 if __name__ == "__main__":
