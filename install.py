@@ -7,6 +7,9 @@ from tqdm import tqdm
 import itertools
 import threading
 
+GREEN_TEXT = "\033[92m"
+RESET_TEXT = "\033[0m"
+
 def install_libraries():
     try:
         import tqdm
@@ -41,7 +44,7 @@ def run_with_progress(command, description):
             pbar.update(10)
             time.sleep(1)
         pbar.update(100 - pbar.n)
-    print("\nDone.")
+    print(f"\n{GREEN_TEXT}Done.{RESET_TEXT}")
 
 def spinner():
     for c in itertools.cycle(['|', '/', '-', '\\']):
@@ -73,7 +76,7 @@ def main():
     print("\n")
 
     # Step 2: Create a virtual environment with Python 3.11
-    print("Creating a virtual environment...")
+    print(f"{GREEN_TEXT}Creating a virtual environment...{RESET_TEXT}")
     run_with_progress([sys.executable, "-m", "venv", venv_dir], "Creating venv")
     print("\n")
 
@@ -94,7 +97,7 @@ def main():
     install_command = f'{activate_command}pip install -r requirements.txt'
 
     # Use spinner for indefinite process
-    print("Installing requirements from requirements.txt. This might take a while, please be patient.")
+    print(f"{GREEN_TEXT}Installing requirements from requirements.txt. This might take a while, please be patient.{RESET_TEXT}")
     spinner_thread = threading.Thread(target=spinner)
     spinner_thread.start()
 
@@ -102,14 +105,14 @@ def main():
 
     done = True
     spinner_thread.join()
-    print("\nDone.\n")
+    print(f"\n{GREEN_TEXT}Done.{RESET_TEXT}\n")
 
     # Step 4: Prompt if the user wants to create the bat file and add a shortcut
     create_shortcut_prompt = input("Do you want to create a batch file to run ComfyUI? (Y/n): ").strip().lower()
     if create_shortcut_prompt in ['', 'y', 'yes']:
         print("\n")
         # Step 5: Prompt for command line arguments
-        print("Please refer to the command_line_arguments.md file in the comfyui directory for more information on available command line arguments.")
+        print(f"{GREEN_TEXT}Please refer to the command_line_arguments.md file in the comfyui directory for more information on available command line arguments.{RESET_TEXT}")
         cmd_args = input("Enter any command line arguments you wish to use (e.g., --auto-launch --lowvram): ").strip()
 
         # Step 6: Create bat file
@@ -117,14 +120,14 @@ def main():
         with open(bat_file_path, 'w') as bat_file:
             bat_file.write(f'{activate_command}python main.py {cmd_args}\n')
 
-        print("A bat file was created with your command line arguments in the install directory.")
+        print(f"{GREEN_TEXT}A bat file was created with your command line arguments in the install directory.{RESET_TEXT}")
 
         # Step 7: Create desktop shortcut with custom icon
         desktop = winshell.desktop()
         shortcut_path = os.path.join(desktop, "ComfyUI.lnk")
         icon_path = os.path.join(install_dir, "comfy_zluda_icon.ico")
         create_shortcut(bat_file_path, shortcut_path, icon_path, "Shortcut to run ComfyUI")
-        print("A shortcut to the batch file was added to your desktop with a custom icon.")
+        print(f"{GREEN_TEXT}A shortcut to the batch file was added to your desktop with a custom icon.{RESET_TEXT}")
     else:
         bat_file_path = None
     print("\n")
@@ -134,10 +137,10 @@ def main():
     torch_lib_dir = os.path.join(venv_dir, 'Lib', 'site-packages', 'torch', 'lib')
 
     if not os.path.exists(zluda_dir):
-        print(f"Error: ZLUDA directory {zluda_dir} does not exist.")
+        print(f"{GREEN_TEXT}Error: ZLUDA directory {zluda_dir} does not exist.{RESET_TEXT}")
         return
 
-    print("Copying renamed DLL files from ZLUDA...")
+    print(f"{GREEN_TEXT}Copying Zluda DLL files to Torch library...{RESET_TEXT}")
     dll_files = ['cublas64_11.dll', 'cusparse64_11.dll']
     with tqdm(total=len(dll_files), desc="Copying DLL files", bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]') as pbar:
         for dll in dll_files:
@@ -145,17 +148,16 @@ def main():
             dest_path = os.path.join(torch_lib_dir, dll)
             if os.path.exists(src_path):
                 shutil.copy2(src_path, dest_path)
-                print(f"Copied {dll} to {dest_path}")
+                print(f"{GREEN_TEXT}Copied {dll} to {dest_path}{RESET_TEXT}")
             else:
-                print(f"Error: {src_path} does not exist.")
+                print(f"{RED_TEXT}Error: {src_path} does not exist.{RESET_TEXT}")
             pbar.update(1)
     print("\n")
 
     # Final instructions
-    print("\nComfyUI installation is complete.")
+    print(f"\n{GREEN_TEXT}ComfyUI installation is complete.{RESET_TEXT}")
     if bat_file_path:
-        print(f'To activate the virtual environment in the future, run:\n   {os.path.join(venv_dir, "Scripts", "activate.bat")}\n')
-        print(f'To run ComfyUI with your specified command line arguments, use the batch file:\n   {bat_file_path}')
+        print(f'{GREEN_TEXT}To run ComfyUI with your specified command line arguments, use the desktop shortcut or directly via the bat file in the installation directory:\n   {bat_file_path}{RESET_TEXT}')
 
 if __name__ == "__main__":
     main()
