@@ -30,29 +30,27 @@ def install_libraries():
         site_packages = site.getsitepackages()[0]
         pywin32_postinstall = os.path.join(site_packages, 'pywin32_system32', 'pywin32_postinstall.py')
         subprocess.check_call([sys.executable, pywin32_postinstall, '-install'])
+    try:
+        import halo
+    except ImportError:
+        print("halo not found. Installing halo...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "halo"])
 
 install_libraries()
 from tqdm import tqdm
 import winshell
 import pythoncom
 from win32com.client import Dispatch
+from halo import Halo
 
 def run_with_progress(command, description):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    with tqdm(total=100, desc=description, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]') as pbar:
+    with tqdm(total=100, desc=description, bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]', smoothing=0.1) as pbar:
         while process.poll() is None:
             pbar.update(10)
             time.sleep(1)
         pbar.update(100 - pbar.n)
     print(f"\n{GREEN_TEXT}Done.{RESET_TEXT}")
-
-def spinner():
-    for c in itertools.cycle(['|', '/', '-', '\\']):
-        if done:
-            break
-        sys.stdout.write('\rInstalling requirements... ' + c)
-        sys.stdout.flush()
-        time.sleep(0.1)
 
 def create_shortcut(target, shortcut_path, icon_path, description):
     shell = Dispatch('WScript.Shell')
@@ -96,15 +94,15 @@ def main():
         
     install_command = f'{activate_command}pip install -r requirements.txt'
 
-    # Use spinner for indefinite process
+    # Use Halo spinner for indefinite process
     print(f"{GREEN_TEXT}Installing requirements from requirements.txt. This might take a while, please be patient.{RESET_TEXT}")
-    spinner_thread = threading.Thread(target=spinner)
-    spinner_thread.start()
+    spinner = Halo(text='Installing requirements...', spinner='dots')
+    spinner.start()
 
     subprocess.run(install_command, shell=True, check=True)
 
     done = True
-    spinner_thread.join()
+    spinner.stop()
     print(f"\n{GREEN_TEXT}Done.{RESET_TEXT}\n")
 
     # Step 4: Prompt if the user wants to create the bat file and add a shortcut
@@ -142,7 +140,7 @@ def main():
 
     print(f"{GREEN_TEXT}Copying Zluda DLL files to Torch library...{RESET_TEXT}")
     dll_files = ['cublas64_11.dll', 'cusparse64_11.dll']
-    with tqdm(total=len(dll_files), desc="Copying DLL files", bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]') as pbar:
+    with tqdm(total=len(dll_files), desc="Copying DLL files", bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]', smoothing=0.1) as pbar:
         for dll in dll_files:
             src_path = os.path.join(zluda_dir, dll)
             dest_path = os.path.join(torch_lib_dir, dll)
@@ -150,7 +148,7 @@ def main():
                 shutil.copy2(src_path, dest_path)
                 print(f"{GREEN_TEXT}Copied {dll} to {dest_path}{RESET_TEXT}")
             else:
-                print(f"{RED_TEXT}Error: {src_path} does not exist.{RESET_TEXT}")
+                print(f"{GREEN_TEXT}Error: {src_path} does not exist.{RESET_TEXT}")
             pbar.update(1)
     print("\n")
 
