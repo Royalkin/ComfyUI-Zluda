@@ -18,6 +18,11 @@ def install_libraries():
     except ImportError:
         print("winshell not found. Installing winshell...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "winshell"])
+    try:
+        import win32com.client
+    except ImportError:
+        print("pywin32 not found. Installing pywin32...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pywin32"])
 
 install_libraries()
 from tqdm import tqdm
