@@ -97,7 +97,7 @@ def main():
     install_command = f'{activate_command}pip install -r requirements.txt'
 
     # Use spinner for indefinite process
-    print(f"{GREEN_TEXT}Installing requirements from requirements.txt. This might take a while, please be patient.{RESET_TEXT}")
+    print(f"{GREEN_TEXT}Installing requirements. THIS MIGHT TAKE A WHILE, PLEASE BE PATIENT.{RESET_TEXT}")
     spinner_thread = threading.Thread(target=spinner)
     spinner_thread.start()
 
@@ -112,7 +112,7 @@ def main():
     if create_shortcut_prompt in ['', 'y', 'yes']:
         print("\n")
         # Step 5: Prompt for command line arguments
-        print(f"{GREEN_TEXT}Please refer to the command_line_arguments.md file in the comfyui directory for more information on available command line arguments.{RESET_TEXT}")
+        print(f"{GREEN_TEXT}Please refer to the comfyui_cmd_line_args.md file in the docs directory for more information on available command line arguments.{RESET_TEXT}")
         cmd_args = input("Enter any command line arguments you wish to use (e.g., --auto-launch --lowvram): ").strip()
 
         # Step 6: Create bat file
@@ -120,14 +120,12 @@ def main():
         with open(bat_file_path, 'w') as bat_file:
             bat_file.write(f'{activate_command}python main.py {cmd_args}\n')
 
-        print(f"{GREEN_TEXT}A bat file was created with your command line arguments in the install directory.{RESET_TEXT}")
-
         # Step 7: Create desktop shortcut with custom icon
         desktop = winshell.desktop()
         shortcut_path = os.path.join(desktop, "ComfyUI.lnk")
         icon_path = os.path.join(install_dir, "comfy_zluda_icon.ico")
         create_shortcut(bat_file_path, shortcut_path, icon_path, "Shortcut to run ComfyUI")
-        print(f"{GREEN_TEXT}A shortcut to the batch file was added to your desktop with a custom icon.{RESET_TEXT}")
+        print(f"{GREEN_TEXT}A shortcut to the batch file was added to your desktop.{RESET_TEXT}")
     else:
         bat_file_path = None
     print("\n")
