@@ -23,6 +23,10 @@ def install_libraries():
     except ImportError:
         print("pywin32 not found. Installing pywin32...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "pywin32"])
+        import site
+        site_packages = site.getsitepackages()[0]
+        pywin32_postinstall = os.path.join(site_packages, 'pywin32_system32', 'pywin32_postinstall.py')
+        subprocess.check_call([sys.executable, pywin32_postinstall, '-install'])
 
 install_libraries()
 from tqdm import tqdm
@@ -101,8 +105,8 @@ def main():
     print("\nDone.\n")
 
     # Step 4: Prompt if the user wants to create the bat file and add a shortcut
-    create_shortcut_prompt = input("Do you want to create a batch file to run ComfyUI? (yes/no): ").strip().lower()
-    if create_shortcut_prompt == 'yes':
+    create_shortcut_prompt = input("Do you want to create a batch file to run ComfyUI? (Y/n): ").strip().lower()
+    if create_shortcut_prompt in ['', 'y', 'yes']:
         print("\n")
         # Step 5: Prompt for command line arguments
         print("Please refer to the command_line_arguments.md file in the comfyui directory for more information on available command line arguments.")
